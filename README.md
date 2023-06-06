@@ -2,7 +2,7 @@
 
 A Final Design Thesis Project by Team Lettusan
 
-[AutoHydroSys Banner][autohydrosys]
+![AutoHydroSys Banner][autohydrosys]
 
 ## Proponents
 
@@ -10,7 +10,8 @@ A Final Design Thesis Project by Team Lettusan
 - Mateo Raffy Del Corro
 - Edsel John Tabra
 - Nathaniel David Lagunero
-  [TeamLettusan][teamlettusan]
+
+![TeamLettusan][teamlettusan]
 
 [autohydrosys]: /autohydrosys-banner.png
 [teamlettusan]: /team-lettusan.png
