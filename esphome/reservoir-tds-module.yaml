@@ -1,0 +1,74 @@
+esphome:
+  name: reservoir-tds-module
+  friendly_name: Reservoir TDS Module
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "nRCrHifHQ/kwh8IjKYlDnV6jjgPwvvKfkb3da5+CJzE="
+
+ota:
+  password: "d6e49b6354032e1a24e4ed069b366c8c"
+
+wifi:
+  # networks:
+  # - ssid: !secret wifi_ssid
+  # - password: !secret wifi_password
+
+  # - ssid: !secret wifi_ssid2
+  # - password: !secret wifi_password2
+
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Reservoir-Tds-Module"
+    password: !secret wifi_ap_password4
+
+captive_portal:
+
+dallas:
+  - pin: D2
+
+sensor:
+
+ # Sensor for water temperature readings
+  - platform: dallas
+    address: 0x623c14f6494c4f28
+    name: "TDS Water Temperature"
+    id: tds_water_temperature
+
+# Sensor for TDS readings without water compensation
+  - platform: adc
+    pin: A0
+    name: "TDS Sensor"
+    id: TDS_Sensor
+    unit_of_measurement: "ppm"
+    accuracy_decimals: 2
+    update_interval: 60s
+    
+    filters:
+       - lambda: return ((133.42*x*x*x - 255.86*x*x + 857.39*x)*0.5)*3;
+   
+  # Template sensor to calculate TDS with temperature compensation
+  - platform: template
+    name: "TDS Sensor Compensated"
+    unit_of_measurement: "ppm"
+    accuracy_decimals: 2
+    icon: "mdi:water"
+    update_interval: 60s
+
+    lambda: |-
+          float temperature = id(tds_water_temperature).state;
+          float compensation_factor = 1.0 + (0.02 * (temperature - 25.0));
+          float tds_raw = id(TDS_Sensor).state;
+          float tds_compensated = tds_raw / compensation_factor;
+          return tds_compensated;
+ 

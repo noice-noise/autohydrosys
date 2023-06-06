@@ -1,0 +1,20 @@
+alignment: center
+chips:
+- content_info: name
+  entity: switch.reservoir_nose_module_growlights
+  icon: mdi:lightbulb-on-10
+  name: Growlights
+  type: entity
+- content_info: name
+  entity: switch.reservoir_nose_module_submersible_pump
+  icon: mdi:pump
+  name: Submersible Pump
+  type: entity
+col_span: '1'
+col_span_lg: '3'
+col_span_xl: '4'
+position: top
+row_span: '1'
+row_span_lg: '3'
+row_span_xl: '4'
+type: custom:mushroom-chips-card

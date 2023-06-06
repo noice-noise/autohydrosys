@@ -1,0 +1,84 @@
+col_span: '1'
+col_span_lg: '1'
+col_span_xl: '1'
+icon: '{% set ph = states(''sensor.reservoir_ph_current_value'')|float %}
+
+  {% set critically_high = states(''input_number.reservoir_ph_set_value_critically_high_limit'')|float
+  %}
+
+  {% set high = states(''input_number.reservoir_ph_set_value_high_limit'')|float %}
+
+  {% set low = states(''input_number.reservoir_ph_set_value_low_limit'')|float %}
+
+  {% set critically_low = states(''input_number.reservoir_ph_set_value_critically_low_limit'')|float
+  %}
+
+  {% if ph >= critically_high %}mdi:flask-outline
+
+  {% elif critically_high > ph >= high %}mdi:flask-plus
+
+  {% elif high > ph > low %}mdi:flask
+
+  {% elif low >= ph > critically_low %}mdi:flask-minus
+
+  {% elif ph <= critically_low %}mdi:flask-off-outline
+
+  {% else %}mdi:flask-empty-outline
+
+  {% endif %}'
+icon_color: '{% set ph = states(''sensor.reservoir_ph_current_value'')|float %}
+
+  {% set critically_high = states(''input_number.reservoir_ph_set_value_critically_high_limit'')|float
+  %}
+
+  {% set high = states(''input_number.reservoir_ph_set_value_high_limit'')|float %}
+
+  {% set low = states(''input_number.reservoir_ph_set_value_low_limit'')|float %}
+
+  {% set critically_low = states(''input_number.reservoir_ph_set_value_critically_low_limit'')|float
+  %}
+
+  {% if ph >= critically_high %}red
+
+  {% elif critically_high > ph >= high %}orange
+
+  {% elif high > ph > low %}green
+
+  {% elif low >= ph > critically_low %}orange
+
+  {% elif ph <= critically_low %}red
+
+  {% else %}gray
+
+  {% endif %}'
+position: top
+primary: PH Value Status
+row_span: '1'
+row_span_lg: '1'
+row_span_xl: '1'
+secondary: '{% set ph = states(''sensor.reservoir_ph_current_value'')|float %}
+
+  {% set critically_high = states(''input_number.reservoir_ph_set_value_critically_high_limit'')|float
+  %}
+
+  {% set high = states(''input_number.reservoir_ph_set_value_high_limit'')|float %}
+
+  {% set low = states(''input_number.reservoir_ph_set_value_low_limit'')|float %}
+
+  {% set critically_low = states(''input_number.reservoir_ph_set_value_critically_low_limit'')|float
+  %}
+
+  {% if ph >= critically_high %}Critically High
+
+  {% elif critically_high > ph >= high %}High
+
+  {% elif high > ph > low %}Normal
+
+  {% elif low >= ph > critically_low %}Low
+
+  {% elif ph <= critically_low %}Critically Low
+
+  {% else %}Measuring
+
+  {% endif %}'
+type: custom:mushroom-template-card

@@ -1,0 +1,87 @@
+col_span: '1'
+col_span_lg: '1'
+col_span_xl: '1'
+icon: '{% set tds = states(''sensor.reservoir_tds_current_value'')|float %}
+
+  {% set critically_high = states(''input_number.reservoir_tds_set_value_critically_high_limit'')|float
+  %}
+
+  {% set high = states(''input_number.reservoir_tds_set_value_high_limit'')|float
+  %}
+
+  {% set low = states(''input_number.reservoir_tds_set_value_low_limit'')|float %}
+
+  {% set critically_low = states(''input_number.reservoir_tds_set_value_critically_low_limit'')|float
+  %}
+
+  {% if tds >= critically_high %}mdi:plus-circle-multiple
+
+  {% elif critically_high > tds > high %}mdi:plus-circle-multiple-outline
+
+  {% elif high > tds > low %}mdi:checkbox-multiple-marked-circle
+
+  {% elif low > tds > critically_low %}mdi:minus-circle-multiple
+
+  {% elif tds <= critically_low %}mdi:close-circle-multiple
+
+  {% else %}mdi:checkbox-multiple-blank-circle-outline
+
+  {% endif %}'
+icon_color: '{% set tds = states(''sensor.reservoir_tds_current_value'')|float %}
+
+  {% set critically_high = states(''input_number.reservoir_tds_set_value_critically_high_limit'')|float
+  %}
+
+  {% set high = states(''input_number.reservoir_tds_set_value_high_limit'')|float
+  %}
+
+  {% set low = states(''input_number.reservoir_tds_set_value_low_limit'')|float %}
+
+  {% set critically_low = states(''input_number.reservoir_tds_set_value_critically_low_limit'')|float
+  %}
+
+  {% if tds >= critically_high %}red
+
+  {% elif critically_high > tds > high %}orange
+
+  {% elif high > tds > low %}green
+
+  {% elif low > tds > critically_low %}orange
+
+  {% elif tds <= critically_low %}red
+
+  {% else %}gray
+
+  {% endif %}'
+position: top
+primary: TDS Value Status
+row_span: '1'
+row_span_lg: '1'
+row_span_xl: '1'
+secondary: '{% set tds = states(''sensor.reservoir_tds_current_value'')|float %}
+
+  {% set critically_high = states(''input_number.reservoir_tds_set_value_critically_high_limit'')|float
+  %}
+
+  {% set high = states(''input_number.reservoir_tds_set_value_high_limit'')|float
+  %}
+
+  {% set low = states(''input_number.reservoir_tds_set_value_low_limit'')|float %}
+
+  {% set critically_low = states(''input_number.reservoir_tds_set_value_critically_low_limit'')|float
+  %}
+
+  {% if tds >= critically_high %}Critically High
+
+  {% elif critically_high > tds > high %}High
+
+  {% elif high > tds > low %}Normal
+
+  {% elif low > tds > critically_low %}Low
+
+  {% elif tds <= critically_low %}Critically Low
+
+  {% else %}Measuring
+
+  {% endif %}'
+type: custom:mushroom-template-card

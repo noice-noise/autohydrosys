@@ -1,0 +1,105 @@
+sensor.hacs:
+  hidden: true
+switch.reservoir_limbs_module_water_valve:
+  custom_card: true
+  sort_order: 6
+  hidden: false
+  grouped_sort_order: 1
+sensor.reservoir_eyes_module_nutsol_sensor:
+  sort_order: 4
+  hidden: true
+binary_sensor.reservoir_limbs_module_light_sensor:
+  sort_order: 1
+  hidden: true
+sensor.reservoir_eyes_module_water_sensor:
+  sort_order: 3
+  hidden: true
+sensor.reservoir_ph_module_ph_sensor:
+  sort_order: 2
+  hidden: true
+sensor.reservoir_tds_module_aquarium_tds:
+  sort_order: 1
+  hidden: true
+  excluded: false
+  disabled: false
+  friendly_name: TDS
+  col_span: '1'
+  row_span: '1'
+  col_span_lg: '1'
+  row_span_lg: '1'
+  col_span_xl: '1'
+  row_span_xl: '1'
+  custom_card: false
+  custom_popup: false
+sensor.farm_sensors_module_air_quality_sensor_mq_135:
+  sort_order: 1
+  hidden: false
+sensor.farm_sensors_module_room_temperature:
+  sort_order: 2
+  hidden: true
+sensor.farm_sensors_module_room_humidity:
+  sort_order: 3
+  hidden: true
+sensor.farm_sensors_module_water_flow_sensor:
+  sort_order: 9
+  hidden: true
+sensor.reservoir_limbs_module_ldr_sensor:
+  sort_order: 4
+  hidden: false
+switch.reservoir_limbs_module_ph_up_pump:
+  sort_order: 11
+  hidden: true
+switch.reservoir_limbs_module_ph_down_pump:
+  sort_order: 12
+  hidden: true
+switch.reservoir_limbs_module_tds_up_pump:
+  sort_order: 13
+  hidden: true
+switch.reservoir_limbs_module_tds_down_pump:
+  sort_order: 7
+  hidden: false
+switch.reservoir_eyes_module_submersible_pump:
+  sort_order: 5
+  hidden: false
+  grouped_sort_order: 2
+switch.reservoir_eyes_module_growlights:
+  sort_order: 8
+  hidden: false
+  grouped_sort_order: 3
+update.reservoir_limbs_module_firmware:
+  sort_order: 18
+  hidden: true
+update.reservoir_eyes_module_firmware:
+  sort_order: 19
+  hidden: true
+update.reservoir_ph_module_firmware:
+  sort_order: 20
+  hidden: true
+update.reservoir_tds_module_firmware:
+  sort_order: 21
+  hidden: true
+update.farm_sensors_module_firmware:
+  sort_order: 22
+  hidden: true
+ke1:
+  sort_order: 6
+  grouped_sort_order: 6
+ke2:
+  sort_order: 1
+  grouped_sort_order: 1
+egf:
+  sort_order: 4
+  grouped_sort_order: 4
+egh:
+  sort_order: 5
+  grouped_sort_order: 5
+e48:
+  sort_order: 2
+  grouped_sort_order: 2
+eq7:
+  sort_order: 3
+  grouped_sort_order: 3
+sensor.farm_sensors_module_water_flow_rate:
+  hidden: true
+sensor.farm_sensors_module_air_quality:
+  hidden: true

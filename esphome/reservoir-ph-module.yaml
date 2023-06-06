@@ -1,0 +1,139 @@
+esphome:
+  name: reservoir-ph-module
+  friendly_name: Reservoir PH Module
+
+esp8266:
+  board: d1_mini
+
+# Enable logging
+logger:
+
+# Enable Home Assistant API
+api:
+  encryption:
+    key: "E+paHfifuOt2hHP15+4UyJEJjDHr1eeI3TTwswaXH44="
+
+ota:
+  password: "7b2340be3dbdc3fb765edaed382e5927"
+
+wifi:
+  # networks:
+  # - ssid: !secret wifi_ssid
+  # - password: !secret wifi_password
+
+  # - ssid: !secret wifi_ssid2
+  # - password: !secret wifi_password2
+
+  ssid: !secret wifi_ssid
+  password: !secret wifi_password
+
+  # Enable fallback hotspot (captive portal) in case wifi connection fails
+  ap:
+    ssid: "Reservoir-Ph-Module"
+    password: !secret wifi_ap_password3
+
+captive_portal:
+
+dallas:
+  - pin: D2
+
+sensor:
+
+  # Sensor for water temperature readings
+  - platform: dallas
+    address: 0x443cd4f64943e728
+    name: "Ph Water Temperature"
+    id: "PH_Water_Temperature"
+
+  #Sensor for PH readings without water temperature compensation
+  - platform: adc
+    pin: A0
+    name: "pH Sensor"
+    id: "pH_Sensor"
+
+    # Update Interval must be atleast 1-3mins to ensure accuracy while taking into account the lifespan of the sensor
+    # More frequent update interval increases power consumption and reduce the lifespan of the sensor
+
+    update_interval: 60s
+    unit_of_measurement: pH
+
+    filters:
+    
+      - median:
+          window_size: 7
+          send_every: 4
+          send_first_at: 3
+        
+      # Measured voltage -> Actual pH (buffer solution)
+
+      - calibrate_linear:
+      # #EJ House Calibration
+      
+            - 0.60156 -> 3.97
+            - 0.65039 -> 6.70
+            - 0.68555 -> 8.98
+
+
+  
+  
+  #Template sensor to calculate PH with temperature compensation
+  - platform: template
+    name: "pH Sensor Compensated"
+    unit_of_measurement: pH
+    icon: "mdi:alpha-p-box"
+    accuracy_decimals: 2
+    update_interval: 60s
+
+    lambda: |-
+      float ph_raw = id(pH_Sensor).state;
+      float ph_filtered = (ph_raw + ph_raw*0.1)/1.1;
+      float temperature = id(PH_Water_Temperature).state;
+      float temperature_compensation = 0.001 * (temperature - 25.0);
+      float ph_compensated = ph_filtered + temperature_compensation;
+      return ph_compensated;
+
+  # # float ionic_strength = 0.1;
+#- (ionic_strength * 0.002);
+
+# - 0.41412 -> 0.00
+# - 0.35495 -> 1.0
+# - 0.2958 -> 2.00
+# - 0.23664 -> 3.0
+# - 0.17748 -> 4.0
+# - 0.11832 -> 5.0
+# - 0.05916 -> 6.0
+# - 0.0 -> 7.0
+
+# - -0.41412 -> 14.0
+# - -0.35495 -> 13.0
+# - -0.2958 -> 12.0
+# - -0.23664 -> 11.00
+# - -0.17748 -> 10.00
+# - -0.11832 -> 9.00
+# - -0.05916 -> 8.00
+
+# - 0.00 -> 0.41412
+# - 1.0 -> 0.35495
+# - 2.00 -> 0.2958
+# - 3.0 -> 0.23664
+# - 4.0 -> 0.17748
+# - 5.0 -> 0.11832
+# - 6.0 -> 0.05916
+# - 7.0 -> 0.0
+# - 8.00 -> - 0.05916
+# - 9.00 -> - 0.11832
+# - 10.00 -> -0.17748
+# - 11.00 -> -0.23664
+# - 12.0 -> -0.2958
+# - 13.0 -> -0.35495
+# - 14.0 -> -0.41412
+
+     # - 0.60938 -> 3.97
+    # - 0.65137 -> 6.68 
+          # - 0.68555 -> 8.95
+          # - 0.60938 -> 4.0
+          # - 0.65137 -> 6.86
+          # - 0.68555 -> 9.18  
+      #     - 0.61621 -> 4.0
+      #     - 0.65625 -> 6.86 
+      #     - 0.67383 -> 9.18 

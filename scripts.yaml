@@ -1,0 +1,505 @@
+notify_alert_water_tank_status:
+  alias: 'Notify: Alert Water Tank Status'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Water Reservoir Level is {{ states('sensor.reservoir_water_current_height_status')
+        }} at {{ states('sensor.reservoir_water_current_height_percentage') }}% ({{
+        states('sensor.reservoir_water_current_height') }})!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Water Reservoir Level is {{ states('sensor.reservoir_water_current_height_status')
+        }} at {{ states('sensor.reservoir_water_current_height_percentage') }}% ({{
+        states('sensor.reservoir_water_current_height') }})!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Water Reservoir Level is {{ states('sensor.reservoir_water_current_height_status')
+        }} at {{ states('sensor.reservoir_water_current_height_percentage') }}% ({{
+        states('sensor.reservoir_water_current_height') }})!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Water Reservoir Level is {{ states('sensor.reservoir_water_current_height_status')
+        }} at {{ states('sensor.reservoir_water_current_height_percentage') }}% ({{
+        states('sensor.reservoir_water_current_height') }})!
+  mode: single
+  icon: mdi:square-rounded-badge
+reservoir_ph_up_pump_on:
+  alias: 'Reservoir PH Up: Dispensing Sequence'
+  sequence:
+  - repeat:
+      count: '5'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.reservoir_limbs_module_ph_up_pump
+      - delay: '{{ states(''input_number.reservoir_ph_pump_up_run_time'') }}
+
+          '
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.reservoir_limbs_module_ph_up_pump
+      - delay: '{{ states(''input_number.reservoir_ph_pump_up_hold_time'') }}
+
+          '
+  mode: single
+  icon: mdi:transfer-up
+reservoir_ph_down_dispensing_sequence:
+  alias: 'Reservoir PH Down: Dispensing Sequence'
+  sequence:
+  - repeat:
+      count: '5'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.reservoir_limbs_module_ph_down_pump
+      - delay: '{{ states(''input_number.reservoir_ph_pump_down_run_time'') }}
+
+          '
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.reservoir_limbs_module_ph_down_pump
+      - delay: '{{ states(''input_number.reservoir_ph_pump_down_hold_time'') }}
+
+          '
+  mode: single
+  icon: mdi:transfer-down
+reservoir_tds_up_dispensing_sequence:
+  alias: 'Reservoir TDS Up: Dispensing Sequence'
+  sequence:
+  - repeat:
+      count: '5'
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id:
+          - switch.reservoir_limbs_module_tds_nut_a_pump
+          - switch.reservoir_limbs_module_tds_nut_b_pump
+      - delay: '{{ states(''input_number.reservoir_tds_pump_up_run_time'') }}
+
+          '
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id:
+          - switch.reservoir_limbs_module_tds_nut_a_pump
+          - switch.reservoir_limbs_module_tds_nut_b_pump
+      - delay: '{{ states(''input_number.reservoir_tds_pump_up_hold_time'') }}
+
+          '
+  mode: single
+  icon: mdi:chevron-double-up
+reservoir_nutSol_add_water:
+  alias: 'Reservoir NutSol: Add Water'
+  sequence:
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.reservoir_limbs_module_water_valve
+  - wait_for_trigger:
+    - platform: state
+      entity_id:
+      - sensor.reservoir_nutsol_current_height_status
+      to: Normal
+      for:
+        hours: 0
+        minutes: 0
+        seconds: 3
+    timeout:
+      hours: 0
+      minutes: 0
+      seconds: '{{ states(''input_number.reservoir_nutsol_water_valve_max_runtime'')
+        }}'
+      milliseconds: 0
+    continue_on_timeout: true
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.reservoir_limbs_module_water_valve
+  mode: single
+  icon: mdi:beaker-check-outline
+reservoir_tds_down_add_water:
+  alias: 'Reservoir TDS Down: Add Water'
+  sequence:
+  - service: switch.turn_on
+    data: {}
+    target:
+      entity_id: switch.reservoir_limbs_module_water_valve
+  - delay: '{{ states(''input_number.reservoir_tds_down_add_water_run_time'') }}
+
+      '
+  - service: switch.turn_off
+    data: {}
+    target:
+      entity_id: switch.reservoir_limbs_module_water_valve
+  mode: single
+  icon: mdi:chevron-double-down
+notify_alert_nutsol_tank_status:
+  alias: 'Notify: Alert NutSol Tank Status'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        NutSol Reservoir Level is {{ states(''sensor.reservoir_nutsol_current_height_status'')
+        }} at {{ states(''sensor.reservoir_nutsol_current_height_percentage'') }}%
+        ({{ states(''sensor.reservoir_nutsol_current_height'') }}m)!'
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        NutSol Reservoir Level is {{ states(''sensor.reservoir_nutsol_current_height_status'')
+        }} at {{ states(''sensor.reservoir_nutsol_current_height_percentage'') }}%
+        ({{ states(''sensor.reservoir_nutsol_current_height'') }}m)!'
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        NutSol Reservoir Level is {{ states(''sensor.reservoir_nutsol_current_height_status'')
+        }} at {{ states(''sensor.reservoir_nutsol_current_height_percentage'') }}%
+        ({{ states(''sensor.reservoir_nutsol_current_height'') }}m)!'
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        NutSol Reservoir Level is {{ states(''sensor.reservoir_nutsol_current_height_status'')
+        }} at {{ states(''sensor.reservoir_nutsol_current_height_percentage'') }}%
+        ({{ states(''sensor.reservoir_nutsol_current_height'') }}m)!'
+  - service: persistent_notification.create
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        NutSol Reservoir Level is {{ states(''sensor.reservoir_nutsol_current_height_status'')
+        }} at {{ states(''sensor.reservoir_nutsol_current_height_percentage'') }}%
+        ({{ states(''sensor.reservoir_nutsol_current_height'') }}m)!'
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_nutsol_ph_status:
+  alias: 'Notify: Alert PH Status'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        PH Level is {{ states(''sensor.reservoir_ph_current_value_status'') }}  at
+        {{ states(''sensor.reservoir_ph_current_value'') }} pH!'
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        PH Level is {{ states(''sensor.reservoir_ph_current_value_status'') }}  at
+        {{ states(''sensor.reservoir_ph_current_value'') }} pH!'
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        PH Level is {{ states(''sensor.reservoir_ph_current_value_status'') }}  at
+        {{ states(''sensor.reservoir_ph_current_value'') }} pH!'
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        PH Level is {{ states(''sensor.reservoir_ph_current_value_status'') }}  at
+        {{ states(''sensor.reservoir_ph_current_value'') }} pH!'
+  - service: persistent_notification.create
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        PH Level is {{ states(''sensor.reservoir_ph_current_value_status'') }}  at
+        {{ states(''sensor.reservoir_ph_current_value'') }} pH!'
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_tds_status:
+  alias: 'Notify: Alert TDS Status'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        TDS Level is {{ states(''sensor.reservoir_tds_current_value_status'') }} at
+        {{ states(''sensor.reservoir_tds_current_value'') }} ppm!'
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        TDS Level is {{ states(''sensor.reservoir_tds_current_value_status'') }} at
+        {{ states(''sensor.reservoir_tds_current_value'') }} ppm!'
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        TDS Level is {{ states(''sensor.reservoir_tds_current_value_status'') }} at
+        {{ states(''sensor.reservoir_tds_current_value'') }} ppm!'
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        TDS Level is {{ states(''sensor.reservoir_tds_current_value_status'') }} at
+        {{ states(''sensor.reservoir_tds_current_value'') }} ppm!'
+  - service: persistent_notification.create
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: 'Nutrient Quality Balancing Automation Triggered {{ states(''input_text.reservoir_automation_pump_manager_condition_state'')
+        }}
+
+        TDS Level is {{ states(''sensor.reservoir_tds_current_value_status'') }} at
+        {{ states(''sensor.reservoir_tds_current_value'') }} ppm!'
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_lux_status:
+  alias: 'Notify: Alert Lux Status'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Luminescence is {{ states('sensor.reservoir_water_current_height_status')
+        }}!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Luminescence is {{ states('sensor.reservoir_water_current_height_status')
+        }}!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Luminescence is {{ states('sensor.reservoir_water_current_height_status')
+        }}!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Luminescence is {{ states('sensor.reservoir_water_current_height_status')
+        }}!
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_water_temperature:
+  alias: 'Notify: Alert Water Temperature'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Temperature is {{ states('sensor.reservoir_ph_module_ph_water_temperature')
+        }} °C!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Temperature is {{ states('sensor.reservoir_ph_module_ph_water_temperature')
+        }} °C!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Temperature is {{ states('sensor.reservoir_ph_module_ph_water_temperature')
+        }} °C!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Temperature is {{ states('sensor.reservoir_ph_module_ph_water_temperature')
+        }} °C!
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_air_temperature:
+  alias: 'Notify: Alert Air Temperature'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_temperature')
+        }} °C!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_temperature')
+        }} °C!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_temperature')
+        }} °C!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_temperature')
+        }} °C!
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_air_humidity:
+  alias: 'Notify: Alert Air Humidity'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_humidity')
+        }}%!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_humidity')
+        }}%!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_humidity')
+        }}%!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Temperature is {{ states('sensor.farm_sensors_module_room_humidity')
+        }}%!
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_air_quality:
+  alias: 'Notify: Alert Air Quality'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Quality is {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Quality is {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Quality is {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Farm Air Quality is {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_water_flow_rate:
+  alias: 'Notify: Alert Water Flow Rate'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Flow Rate is {{ states('sensor.farm_sensors_module_water_flow_rate')
+        }}L/hr!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Flow Rate is {{ states('sensor.farm_sensors_module_water_flow_rate')
+        }}L/hr!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Flow Rate is {{ states('sensor.farm_sensors_module_water_flow_rate')
+        }}L/hr!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: NutSol Water Flow Rate is {{ states('sensor.farm_sensors_module_water_flow_rate')
+        }}L/hr!
+  mode: single
+  icon: mdi:square-rounded-badge
+notify_alert_hardware_processor_temperature:
+  alias: 'Notify: Alert Hardware Processor Temperature'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Hardware Processor Temperature is {{ states('sensor.processor_temperature')
+        }} °C!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Hardware Processor Temperature is {{ states('sensor.processor_temperature')
+        }} °C!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Hardware Processor Temperature is {{ states('sensor.processor_temperature')
+        }} °C!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Hardware Processor Temperature is {{ states('sensor.processor_temperature')
+        }} °C!
+  mode: single
+  icon: mdi:square-rounded-badge
+new_script_4:
+  alias: 'Notify: Alert Smoke Detected'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Smoke detected!  Farm Air Quality is abnormal - {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Smoke detected!  Farm Air Quality is abnormal - {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Smoke detected!  Farm Air Quality is abnormal - {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Smoke detected!  Farm Air Quality is abnormal - {{ states('sensor.farm_sensors_module_air_quality')
+        }}%!
+  mode: single
+  icon: mdi:square-rounded-badge
+new_script_5:
+  alias: 'Notify: Alert Reservoir Sensor Abnormal'
+  sequence:
+  - service: notify.mobile_app_raol_ojisan
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Alert! Reservoir sensors indicate abnormal behavior!
+  - service: notify.mobile_app_mat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Alert! Reservoir sensors indicate abnormal behavior!
+  - service: notify.mobile_app_nat
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Alert! Reservoir sensors indicate abnormal behavior!
+  - service: notify.mobile_app_ej
+    data:
+      title: '{{ states(''input_text.hydroponic_farm_name'') }}'
+      message: Alert! Reservoir sensors indicate abnormal behavior!
+  mode: single
+  icon: mdi:square-rounded-badge

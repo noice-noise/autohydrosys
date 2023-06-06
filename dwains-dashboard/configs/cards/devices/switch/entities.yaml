@@ -1,0 +1,12 @@
+col_span: '1'
+col_span_lg: '1'
+col_span_xl: '1'
+entities:
+- sensor.reservoir_water_current_height
+- sensor.reservoir_water_current_height_percentage
+- sensor.reservoir_nutsol_current_height
+position: top
+row_span: '1'
+row_span_lg: '1'
+row_span_xl: '1'
+type: entities

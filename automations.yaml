@@ -1,0 +1,702 @@
+- id: '1677839746445'
+  alias: 'Notification: Reservoir Water'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.reservoir_water_current_height_status
+    id: reservoir_current_height_status_critically_high
+    to: Critically High
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_water_current_height_status
+    id: reservoir_current_height_status_high
+    to: High
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_water_current_height_status
+    id: reservoir_current_height_status_normal
+    to: Normal
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_water_current_height_status
+    id: reservoir_current_height_status_low
+    to: Low
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_water_current_height_status
+    id: reservoir_current_height_status_critically_low
+    to: Critically Low
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: reservoir_current_height_status_critically_high
+      sequence:
+      - service: script.notify_alert_water_tank_status
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: reservoir_current_height_status_critically_low
+      sequence:
+      - service: script.notify_alert_water_tank_status
+        data: {}
+  mode: single
+- id: '1678095363067'
+  alias: 'Reservoir Automation: Pump Manager'
+  description: ''
+  trigger:
+  - platform: time_pattern
+    minutes: /2
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: not
+      conditions:
+      - condition: state
+        entity_id: sensor.reservoir_ph_module_ph_sensor
+        state: unavailable
+      - condition: state
+        entity_id: sensor.reservoir_tds_module_tds_sensor
+        state: unavailable
+  action:
+  - choose:
+    - conditions:
+      - condition: template
+        value_template: '{% if states(''sensor.reservoir_tds_is_above_limit'')|bool
+          %}true{% endif %}'
+        enabled: true
+      - condition: not
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.reservoir_nutsol_current_height_percentage
+          above: input_number.reservoir_nutsol_set_height_critically_high_limit
+          enabled: true
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_nutsol_sensor
+          state: unknown
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_nutsol_sensor
+          state: unavailable
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_water_sensor
+          state: unknown
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_water_sensor
+          state: unavailable
+      sequence:
+      - service: input_text.set_value
+        data:
+          value: (TDS Down)
+        target:
+          entity_id: input_text.reservoir_automation_pump_manager_condition_state
+      - service: script.notify_alert_tds_status
+        data: {}
+        enabled: true
+      - service: script.reservoir_tds_down_add_water
+        data: {}
+        enabled: true
+    - conditions:
+      - condition: template
+        value_template: '{% if states(''sensor.reservoir_tds_is_below_limit'')|bool
+          %}true{% endif %}'
+        enabled: true
+      sequence:
+      - service: input_text.set_value
+        data:
+          value: (TDS Up)
+        target:
+          entity_id: input_text.reservoir_automation_pump_manager_condition_state
+      - service: script.notify_alert_tds_status
+        data: {}
+      - service: script.reservoir_tds_up_dispensing_sequence
+        data: {}
+        enabled: true
+    - conditions:
+      - condition: template
+        value_template: '{% if states(''sensor.reservoir_ph_is_above_limit'')|bool
+          %}true{% endif %}'
+      sequence:
+      - service: input_text.set_value
+        data:
+          value: (PH Down)
+        target:
+          entity_id: input_text.reservoir_automation_pump_manager_condition_state
+      - service: script.notify_alert_nutsol_ph_status
+        data: {}
+      - service: script.reservoir_ph_down_dispensing_sequence
+        data: {}
+    - conditions:
+      - condition: template
+        value_template: '{% if states(''sensor.reservoir_ph_is_below_limit'')|bool
+          %}true{% endif %}'
+      sequence:
+      - service: input_text.set_value
+        data:
+          value: (PH Up)
+        target:
+          entity_id: input_text.reservoir_automation_pump_manager_condition_state
+      - service: script.notify_alert_nutsol_ph_status
+        data: {}
+      - service: script.reservoir_ph_up_pump_on
+        data: {}
+    - conditions:
+      - condition: template
+        value_template: '{% if states(''sensor.reservoir_nutsol_is_below_limit'')|bool
+          %}true{% endif %}'
+        enabled: true
+      - condition: not
+        conditions:
+        - condition: numeric_state
+          entity_id: sensor.reservoir_nutsol_current_height_percentage
+          above: input_number.reservoir_nutsol_set_height_critically_high_limit
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_nutsol_sensor
+          state: unknown
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_nutsol_sensor
+          state: unavailable
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_water_sensor
+          state: unknown
+        - condition: state
+          entity_id: sensor.reservoir_nose_module_water_sensor
+          state: unavailable
+      sequence:
+      - service: input_text.set_value
+        data:
+          value: (NutSol Level Up)
+        target:
+          entity_id: input_text.reservoir_automation_pump_manager_condition_state
+      - service: script.notify_alert_nutsol_tank_status
+        data: {}
+      - service: script.reservoir_tds_down_add_water
+        data: {}
+        enabled: true
+    default: []
+  - service: input_text.set_value
+    data:
+      value: (Stable)
+    target:
+      entity_id: input_text.reservoir_automation_pump_manager_condition_state
+  mode: single
+- id: '1678299538453'
+  alias: 'Farm Growlights: Scheduled Cycle'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - schedule.farm_growlights_regular_schedule
+    to: 'on'
+    from: 'off'
+    id: farm_growlights_schedule_on
+  - platform: state
+    entity_id:
+    - schedule.farm_growlights_regular_schedule
+    from: 'on'
+    to: 'off'
+    id: farm_growlights_schedule_off
+  condition:
+  - condition: state
+    entity_id: input_select.hydroponic_mode
+    state: Active
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: farm_growlights_schedule_on
+      sequence:
+      - service: switch.turn_on
+        data: {}
+        target:
+          entity_id: switch.reservoir_nose_module_growlights
+    - conditions:
+      - condition: trigger
+        id: farm_growlights_schedule_off
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.reservoir_nose_module_growlights
+  mode: single
+- id: '1681733940268'
+  alias: 'Notification: Water Flow Rate'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_water_flow_rate
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    above: input_number.reservoir_nutsol_water_flow_rate_above_trigger
+    id: is_water_flow_above
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_water_flow_rate
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    below: input_number.reservoir_nutsol_water_flow_rate_below_trigger
+    id: is_water_flow_below
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+  action:
+  - service: script.notify_alert_water_flow_rate
+    data: {}
+  mode: single
+- id: '1681734113037'
+  alias: 'Notification: Air Quality'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_air_quality
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    above: input_number.farm_air_quality_above_trigger
+    id: is_air_quality_above
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_air_quality
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    below: input_number.farm_air_quality_below_trigger
+    id: is_air_quality_below
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+    enabled: true
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: is_air_quality_above
+      sequence:
+      - service: script.notify_alert_air_quality
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: is_air_quality_below
+      sequence:
+      - service: script.notify_alert_air_quality
+        data: {}
+  mode: single
+- id: '1681740761540'
+  alias: 'Notification: Air Temperature'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_room_temperature
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    above: input_number.farm_air_temperature_above_trigger
+    id: is_air_temperature_above
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_room_temperature
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    below: input_number.farm_air_temperature_below_trigger
+    id: is_air_temperature_below
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+    enabled: true
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: is_air_temperature_above
+      sequence:
+      - service: script.notify_alert_air_temperature
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: is_air_temperature_below
+      sequence:
+      - service: script.notify_alert_air_temperature
+        data: {}
+  mode: single
+- id: '1681740916692'
+  alias: 'Notification: Air Humidity'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_room_humidity
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    above: input_number.farm_air_humidity_above_trigger
+    id: is_air_humidity_above
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_room_humidity
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+    below: input_number.farm_air_humidity_below_trigger
+    id: is_air_humidity_below
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+    enabled: true
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: is_air_humidity_above
+      sequence:
+      - service: script.notify_alert_air_humidity
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: is_air_humidity_below
+      sequence:
+      - service: script.notify_alert_air_humidity
+        data: {}
+  mode: single
+- id: '1681741170972'
+  alias: 'Notification: Water Temperature'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.reservoir_ph_module_ph_water_temperature
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    above: input_number.reservoir_nutsol_temperature_above_trigger
+  - platform: numeric_state
+    entity_id: sensor.reservoir_ph_module_ph_water_temperature
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    below: input_number.reservoir_nutsol_temperature_below_trigger
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+  action:
+  - service: script.notify_alert_water_temperature
+    data: {}
+  mode: single
+- id: '1681741297347'
+  alias: 'Notification: Processor Temperature'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.processor_temperature
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    above: input_number.hardware_processor_temperature_above_trigger
+  - platform: numeric_state
+    entity_id: sensor.processor_temperature
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    below: input_number.hardware_processor_temperature_below_trigger
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+  action:
+  - service: script.notify_alert_hardware_processor_temperature
+    data: {}
+  mode: single
+- id: '1681743523961'
+  alias: 'Notification: Reservoir NutSol'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_critically_high
+    to: Critically High
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_high
+    to: High
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_normal
+    to: Normal
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_low
+    to: Low
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_critically_low
+    to: Critically Low
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: reservoir_current_height_status_critically_high
+      sequence:
+      - service: script.notify_alert_nutsol_tank_status
+        data: {}
+    - conditions:
+      - condition: trigger
+        id: reservoir_current_height_status_critically_low
+      sequence:
+      - service: script.notify_alert_nutsol_tank_status
+        data: {}
+  mode: single
+- id: '1682149424554'
+  alias: 'Reservoir Danger: NutSol Level'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_critically_high
+    to: Critically High
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 0
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_high
+    to: High
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    enabled: false
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_normal
+    to: Normal
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    enabled: false
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_low
+    to: Low
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    enabled: false
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nutsol_current_height_status
+    id: reservoir_current_height_status_critically_low
+    to: Critically Low
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    enabled: false
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: reservoir_current_height_status_critically_high
+      - condition: state
+        entity_id: switch.reservoir_limbs_module_water_valve
+        state: 'on'
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.reservoir_limbs_module_water_valve
+      - service: notify.persistent_notification
+        data:
+          title: 'Reservoir Danger: NutSol Level'
+          message: Add Water pump turned off because NutSol level reached Critically
+            High Level!
+        enabled: true
+  mode: single
+- id: '1683002865388'
+  alias: 'Hardware Danger: Smoke Detection'
+  description: ''
+  trigger:
+  - platform: numeric_state
+    entity_id: sensor.farm_sensors_module_air_quality
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+    above: input_number.farm_air_quality_smoke_trigger
+    id: is_air_quality_above
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    enabled: true
+  action:
+  - choose:
+    - conditions:
+      - condition: trigger
+        id: is_air_quality_above
+      sequence:
+      - service: switch.turn_off
+        data: {}
+        target:
+          entity_id: switch.reservoir_nose_module_submersible_pump
+      - service: script.new_script_4
+        data: {}
+  mode: single
+- id: '1683005206683'
+  alias: 'Reservoir Danger: Sensors Abnormal'
+  description: ''
+  trigger:
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nose_module_nutsol_sensor
+    - sensor.reservoir_nose_module_water_sensor
+    to: unknown
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  - platform: state
+    entity_id:
+    - sensor.reservoir_nose_module_nutsol_sensor
+    - sensor.reservoir_nose_module_water_sensor
+    to: unavailable
+    for:
+      hours: 0
+      minutes: 0
+      seconds: 3
+  condition:
+  - condition: and
+    conditions:
+    - condition: state
+      entity_id: input_select.hydroponic_mode
+      state: Active
+    - condition: state
+      entity_id: input_boolean.allow_notifications
+      state: 'on'
+  action:
+  - service: script.new_script_5
+    data: {}
+  mode: single

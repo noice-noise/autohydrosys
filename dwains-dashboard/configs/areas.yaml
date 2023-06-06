@@ -1,0 +1,25 @@
+hydroponics:
+  sort_order: 1
+  icon: mdi:sprout-outline
+  floor: ''
+  disabled: false
+living_room:
+  sort_order: 3
+  icon: mdi:sofa-outline
+  floor: ''
+  disabled: false
+kitchen:
+  sort_order: 4
+  icon: mdi:countertop-outline
+  floor: ''
+  disabled: false
+bedroom:
+  sort_order: 5
+  icon: mdi:bed-outline
+  floor: ''
+  disabled: false
+lab:
+  sort_order: 2
+  icon: mdi:safety-goggles
+  floor: ''
+  disabled: false

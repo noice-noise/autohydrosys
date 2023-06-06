@@ -1,0 +1,24 @@
+alignment: center
+chips:
+- chip:
+    double_tap_action:
+      action: call-service
+      data: {}
+      service: switch.toggle
+      target:
+        entity_id: switch.reservoir_limbs_module_tds_up_pump
+    icon: mdi:chevron-double-up
+    icon_color: pink
+    type: action
+  conditions:
+  - entity: switch.reservoir_limbs_module_tds_up_pump
+    state: 'on'
+  type: conditional
+col_span: '2'
+col_span_lg: '3'
+col_span_xl: '4'
+position: top
+row_span: '1'
+row_span_lg: '1'
+row_span_xl: '1'
+type: custom:mushroom-chips-card

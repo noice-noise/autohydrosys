@@ -1,0 +1,93 @@
+col_span: '1'
+col_span_lg: '1'
+col_span_xl: '1'
+icon: '{% set percentage = states(''sensor.reservoir_water_current_height_percentage'')|int
+  %}
+
+  {% set critically_high = states(''input_number.reservoir_water_set_height_critically_high_limit'')|int
+  %}
+
+  {% set high = states(''input_number.reservoir_water_set_height_high_limit'')|int
+  %}
+
+  {% set low = states(''input_number.reservoir_water_set_height_critically_low_limit'')|int
+  %}
+
+  {% set critically_low = states(''input_number.reservoir_water_set_height_critically_low_limit'')|int
+  %}
+
+  {% if percentage >= critically_high %}mdi:water-alert
+
+  {% elif critically_high > percentage > high %}mdi:water-alert-outline
+
+  {% elif high > percentage > low %}mdi:water-check
+
+  {% elif low > percentage > critically_low %}mdi:water-minus-outline
+
+  {% elif percentage <= critically_low %}mdi:water-off-outline
+
+  {% else %}mdi:water-sync
+
+  {% endif %}'
+icon_color: '{% set percentage = states(''sensor.reservoir_water_current_height_percentage'')|int
+  %}
+
+  {% set critically_high = states(''input_number.reservoir_water_set_height_critically_high_limit'')|int
+  %}
+
+  {% set high = states(''input_number.reservoir_water_set_height_high_limit'')|int
+  %}
+
+  {% set low = states(''input_number.reservoir_water_set_height_critically_low_limit'')|int
+  %}
+
+  {% set critically_low = states(''input_number.reservoir_water_set_height_critically_low_limit'')|int
+  %}
+
+  {% if percentage >= critically_high %}red
+
+  {% elif critically_high > percentage > high %}orange
+
+  {% elif high > percentage > low %}green
+
+  {% elif low > percentage > critically_low %}orange
+
+  {% elif percentage <= critically_low %}red
+
+  {% else %}gray
+
+  {% endif %}'
+position: top
+primary: Water Reservoir Level
+row_span: '1'
+row_span_lg: '1'
+row_span_xl: '1'
+secondary: '{% set percentage = states(''sensor.reservoir_water_current_height_percentage'')|int
+  %}
+
+  {% set critically_high = states(''input_number.reservoir_water_set_height_critically_high_limit'')|int
+  %}
+
+  {% set high = states(''input_number.reservoir_water_set_height_high_limit'')|int
+  %}
+
+  {% set low = states(''input_number.reservoir_water_set_height_critically_low_limit'')|int
+  %}
+
+  {% set critically_low = states(''input_number.reservoir_water_set_height_critically_low_limit'')|int
+  %}
+
+  {% if percentage >= critically_high %}Critically High
+
+  {% elif critically_high > percentage > high %}High
+
+  {% elif high > percentage > low %}Normal
+
+  {% elif low > percentage > critically_low %}Low
+
+  {% elif percentage <= critically_low %}Critically Low
+
+  {% else %}Measuring...
+
+  {% endif %}'
+type: custom:mushroom-template-card

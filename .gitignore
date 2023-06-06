@@ -1,0 +1,69 @@
+# Example .gitignore file for your config dir.
+# An * ensures that everything will be ignored.
+
+# You can whitelist files/folders with !, these will not be ignored.
+!*.yaml
+!.gitignore
+!*.md
+
+# Ignore folders.
+.storage
+.cloud
+.google.token
+
+#Database
+*.db
+*.db-*
+
+# Ensure these YAML files are ignored, otherwise your secret data/credentials will leak.
+ip_bans.yaml
+secrets.yaml
+known_devices.yaml
+
+# .gitignore file from CCOSTAN: https://github.com/CCOSTAN/Home-AssistantConfig/blob/master/.gitignore
+*.DISABLED
+*.pid
+*.xml
+*.csr
+*.crt
+*.key
+*.conf
+*.pickle
+*.db-journal
+*.db-shm
+*.db-wal
+*.sqlite
+*.log
+*.db
+*.sqlite
+.cloud
+.storage
+.vscode
+.google.token
+.uuid
+core.*
+core
+OZW_Log.txt
+home-assistant.log
+home-assistant.log.*
+home-assistant_v2
+home-assistant_v2.*
+deps
+icloud
+__pycache__
+hacs
+alexa_media
+custom_components
+image
+tts
+secrets.yaml
+secrets
+known_devices.yaml
+.homekit.state
+phue.conf
+ios.conf
+pyozw.sqlite
+nest.conf
+ipchange.yaml
+ip_bans.yaml
+production_auth.json

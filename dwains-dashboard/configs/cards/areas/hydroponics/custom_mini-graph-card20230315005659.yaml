@@ -1,0 +1,33 @@
+cards:
+- entities:
+  - sensor.reservoir_nutsol_current_height
+  font_size: 75
+  line_color: blue
+  line_width: 8
+  type: custom:mini-graph-card
+- entities:
+  - sensor.reservoir_water_current_height
+  font_size: 75
+  line_color: red
+  line_width: 8
+  type: custom:mini-graph-card
+- entities:
+  - sensor.reservoir_tds_current_value
+  font_size: 75
+  line_color: green
+  line_width: 8
+  type: custom:mini-graph-card
+- entities:
+  - sensor.reservoir_ph_current_value
+  font_size: 75
+  line_color: darkviolet
+  line_width: 8
+  type: custom:mini-graph-card
+col_span: '2'
+col_span_lg: '3'
+col_span_xl: '4'
+position: top
+row_span: '1'
+row_span_lg: '1'
+row_span_xl: '1'
+type: horizontal-stack

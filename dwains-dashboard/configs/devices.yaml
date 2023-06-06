@@ -1,0 +1,12 @@
+person:
+  sort_order: 5
+weather:
+  sort_order: 4
+sensor:
+  sort_order: 2
+switch:
+  sort_order: 1
+binary_sensor:
+  sort_order: 3
+update:
+  sort_order: 6

@@ -1,0 +1,222 @@
+# Reservoir Water Custom Sensors
+- platform: template
+  sensors:
+    reservoir_water_current_height:
+      friendly_name: "Reservoir Water: Current Height"
+      value_template: >-
+        {{ states('input_number.reservoir_water_tank_height')|float - states('sensor.reservoir_nose_module_water_sensor')|float  }}
+      unit_of_measurement: "m"
+    reservoir_water_current_volume:
+      friendly_name: "Reservoir Water: Current Volume"
+      unit_of_measurement: "L"
+      value_template: >-
+        {% set currentHeight = states('sensor.reservoir_water_current_height')|float %}
+        {% set tankWidth = states('input_number.reservoir_water_tank_width')|float %}
+        {% set tankLength = states('input_number.reservoir_water_tank_length')|float %}
+        {% set tankRadius = states('input_number.reservoir_water_tank_radius')|float %}
+        {% set tankOffset = states('input_number.reservoir_water_tank_offset')|float %}
+        {% set tankVolume_cylinder = 3.14159 * tankRadius * tankRadius * currentHeight * 1000 - tankOffset %}
+        {% set tankVolume_rectangular = tankWidth * tankLength * currentHeight * 1000 - tankOffset %}
+        {% if states('input_select.reservoir_water_tank_type') == 'Cylinder' %}{{ tankVolume_cylinder|float|round(2) }}
+        {% else %}{{ tankVolume_rectangular|float|round(2) }}
+        {% endif %}
+    reservoir_water_current_height_percentage:
+      friendly_name: "Reservoir Water: Current Height Percentage"
+      value_template: >-
+        {{ ((states('sensor.reservoir_water_current_height')|float / states('input_number.reservoir_water_tank_height')|float) * 100)|int }}
+      unit_of_measurement: "%"
+    reservoir_water_current_height_status:
+      friendly_name: "Reservoir Water: Current Height Status"
+      value_template: >-
+        {% set percentage = states('sensor.reservoir_water_current_height_percentage')|int %}
+        {% set critically_high = states('input_number.reservoir_water_set_height_critically_high_limit')|int %}
+        {% set high = states('input_number.reservoir_water_set_height_high_limit')|int %}
+        {% set low = states('input_number.reservoir_water_set_height_lowlimit')|int %}
+        {% set critically_low = states('input_number.reservoir_water_set_height_critically_low_limit')|int %}
+        {% if percentage >= critically_high %}Critically High
+        {% elif critically_high > percentage >= high %}High
+        {% elif high > percentage > low %}Normal
+        {% elif low >= percentage > critically_low %}Low
+        {% elif percentage <= critically_low %}Critically Low
+        {% else %}Measuring
+        {% endif %}
+
+# Reservoir NutSol Custom Sensors
+- platform: template
+  sensors:
+    reservoir_nutsol_current_height:
+      friendly_name: "Reservoir NutSol: Current Height"
+      value_template: >-
+        {{ states('input_number.reservoir_nutsol_tank_height')|float - states('sensor.reservoir_nose_module_nutsol_sensor')|float  }}
+      unit_of_measurement: "m"
+    reservoir_nutsol_current_volume:
+      friendly_name: "Reservoir NutSol: Current Volume"
+      unit_of_measurement: "L"
+      value_template: >-
+        {% set currentHeight = states('sensor.reservoir_nutsol_current_height')|float %}
+        {% set tankWidth = states('input_number.reservoir_nutsol_tank_width')|float %}
+        {% set tankLength = states('input_number.reservoir_nutsol_tank_length')|float %}
+        {% set tankRadius = states('input_number.reservoir_nutsol_tank_radius')|float %}
+        {% set tankOffset = states('input_number.reservoir_nutsol_tank_offset')|float %}
+        {% set tankVolume_cylinder = 3.14159 * tankRadius * tankRadius * currentHeight * 1000 - tankOffset  %}
+        {% set tankVolume_rectangular = tankWidth * tankLength * currentHeight * 1000 - tankOffset %}
+        {% if states('input_select.reservoir_nutsol_tank_type') == 'Cylinder' %}{{ tankVolume_cylinder|float|round(2) }}
+        {% else %}{{ tankVolume_rectangular|float|round(2) }}
+        {% endif %}
+    reservoir_nutsol_current_height_percentage:
+      friendly_name: "Reservoir NutSol: Current Height Percentage"
+      value_template: >-
+        {{ ((states('sensor.reservoir_nutsol_current_height')|float / states('input_number.reservoir_nutsol_tank_height')|float) * 100)|int }}
+      unit_of_measurement: "%"
+    reservoir_nutsol_current_height_status:
+      friendly_name: "Reservoir NutSol: Current Height Status"
+      value_template: >-
+        {% set percentage = states('sensor.reservoir_nutsol_current_height_percentage')|int %}
+        {% set critically_high = states('input_number.reservoir_nutsol_set_height_critically_high_limit')|int %}
+        {% set high = states('input_number.reservoir_nutsol_set_height_high_limit')|int %}
+        {% set low = states('input_number.reservoir_nutsol_set_height_low_limit')|int %}
+        {% set critically_low = states('input_number.reservoir_nutsol_set_height_critically_low_limit')|int %}
+        {% if percentage >= critically_high %}Critically High
+        {% elif critically_high > percentage >= high %}High
+        {% elif high > percentage > low %}Normal
+        {% elif low >= percentage > critically_low %}Low
+        {% elif percentage <= critically_low %}Critically Low
+        {% else %}Measuring
+        {% endif %}
+    reservoir_nutsol_is_above_limit:
+      friendly_name: "Reservoir NutSol: Is Above Limit"
+      value_template: >-
+        {% if states('sensor.reservoir_nutsol_current_height')|float >= states('input_number.reservoir_nutsol_set_height_above_trigger')|float %}
+        true
+        {% else %}
+        false
+        {% endif %}
+    reservoir_nutsol_is_below_limit:
+      friendly_name: "Reservoir NutSol: Is Below Limit"
+      value_template: >-
+        {% if states('sensor.reservoir_nutsol_current_height')|float <= states('input_number.reservoir_nutsol_set_height_below_trigger')|float %}
+        true
+        {% else %}
+        false
+        {% endif %}
+
+# Reservoir PH Custom Sensors
+- platform: template
+  sensors:
+    reservoir_ph_current_value:
+      friendly_name: "Reservoir PH: Current Value"
+      value_template: >-
+        {{ states('sensor.reservoir_ph_module_ph_sensor')|float + states('input_number.reservoir_ph_offset_value')|float  }}
+      unit_of_measurement: "pH"
+    reservoir_ph_current_value_status:
+      friendly_name: "Reservoir PH: Current Value Status"
+      value_template: >-
+        {% set ph = states('sensor.reservoir_ph_current_value')|float %}
+        {% set critically_high = states('input_number.reservoir_ph_set_value_critically_high_limit')|float %}
+        {% set high = states('input_number.reservoir_ph_set_value_high_limit')|float %}
+        {% set low = states('input_number.reservoir_ph_set_value_low_limit')|float %}
+        {% set critically_low = states('input_number.reservoir_ph_set_value_critically_low_limit')|float %}
+        {% if ph >= critically_high %}Critically High
+        {% elif critically_high > ph >= high %}High
+        {% elif high > ph > low %}Normal
+        {% elif low >= ph > critically_low %}Low
+        {% elif ph <= critically_low %}Critically Low
+        {% else %}Measuring
+        {% endif %}
+    reservoir_ph_is_above_limit:
+      friendly_name: "Reservoir PH: Is Above Limit"
+      value_template: >-
+        {% if states('sensor.reservoir_ph_current_value')|float >= states('input_number.reservoir_ph_set_value_above_trigger')|float %}
+        true
+        {% else %}
+        false
+        {% endif %}
+    reservoir_ph_is_below_limit:
+      friendly_name: "Reservoir PH: Is Below Limit"
+      value_template: >-
+        {% if states('sensor.reservoir_ph_current_value')|float <= states('input_number.reservoir_ph_set_value_below_trigger')|float %}
+        true
+        {% else %}
+        false
+        {% endif %}
+
+# Reservoir TDS Custom Sensors
+- platform: template
+  sensors:
+    reservoir_tds_current_value:
+      friendly_name: "Reservoir TDS: Current Value"
+      value_template: >-
+        {{ states('sensor.reservoir_tds_module_tds_sensor_compensated')|float + states('input_number.reservoir_tds_offset_value')|float }}
+      unit_of_measurement: "ppm"
+    reservoir_tds_current_value_status:
+      friendly_name: "Reservoir TDS: Current Value Status"
+      value_template: >-
+        {% set tds = states('sensor.reservoir_tds_current_value')|float %}
+        {% set critically_high = states('input_number.reservoir_tds_set_value_critically_high_limit')|float %}
+        {% set high = states('input_number.reservoir_tds_set_value_high_limit')|float %}
+        {% set low = states('input_number.reservoir_tds_set_value_low_limit')|float %}
+        {% set critically_low = states('input_number.reservoir_tds_set_value_critically_low_limit')|float %}
+        {% if tds >= critically_high %}Critically High
+        {% elif critically_high > tds >= high %}High
+        {% elif high > tds > low %}Normal
+        {% elif low >= tds > critically_low %}Low
+        {% elif tds <= critically_low %}Critically Low
+        {% else %}Measuring
+        {% endif %}
+    reservoir_tds_is_above_limit:
+      friendly_name: "Reservoir TDS: Is Above Limit"
+      value_template: >-
+        {% if states('sensor.reservoir_tds_current_value')|float >= states('input_number.reservoir_tds_set_value_above_trigger')|float %}
+        true
+        {% else %}
+        false
+        {% endif %}
+    reservoir_tds_is_below_limit:
+      friendly_name: "Reservoir TDS: Is Below Limit"
+      value_template: >-
+        {% if states('sensor.reservoir_tds_current_value')|float <= states('input_number.reservoir_tds_set_value_below_trigger')|float %}
+        true
+        {% else %}
+        false
+        {% endif %}
+
+# System monitoring
+- platform: systemmonitor
+  resources:
+    - type: disk_use_percent
+      arg: /config
+    - type: disk_use
+    - type: disk_free
+    - type: memory_use_percent
+    - type: memory_use
+    - type: memory_free
+    - type: swap_use_percent
+    - type: swap_use
+    - type: swap_free
+    - type: load_1m
+    - type: load_5m
+    - type: load_15m
+    - type: network_in
+      arg: eth0
+    - type: network_out
+      arg: eth0
+    - type: throughput_network_in
+      arg: eth0
+    - type: throughput_network_out
+      arg: eth0
+    - type: packets_in
+      arg: eth0
+    - type: packets_out
+      arg: eth0
+    - type: ipv4_address
+      arg: eth0
+    - type: ipv6_address
+      arg: eth0
+    - type: processor_use
+    - type: processor_temperature
+    - type: last_boot
+
+# External directory config file
+- platform: filesize
+  file_paths:
+    - /config/home-assistant_v2.db
